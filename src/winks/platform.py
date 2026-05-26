@@ -23,8 +23,7 @@ _START_MENU = (
 _VBS_PATH = _START_MENU / "Winks.vbs"
 _LNK_PATH = _START_MENU / "Winks.lnk"
 
-# assets/icon.png sits at the repo root, three levels above this file
-_ICON_PATH = Path(__file__).parent.parent.parent / "assets" / "icon.png"
+_ICON_PATH = Path(getattr(sys, "_MEIPASS", Path(__file__).parent.parent.parent)) / "assets" / "icon.png"
 
 
 class Config(BaseModel):

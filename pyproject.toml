@@ -30,6 +30,7 @@ Issues = "https://github.com/OWNER/winks/issues"
 dev = [
     "pytest>=8.0",
     "ruff>=0.4",
+    "pyinstaller>=6.0",
 ]
 
 [tool.ruff.lint]

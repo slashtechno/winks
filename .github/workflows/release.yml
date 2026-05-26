@@ -3,12 +3,15 @@ on:
   push:
     tags: ["v*"]
 jobs:
-  publish:
+  build:
     runs-on: windows-latest
     permissions:
-      id-token: write       # trusted PyPI publishing — no token needed
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
-      - run: uv build
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - run: uv sync --group dev
+      - run: uv run pyinstaller winks.spec
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/winks.exe
