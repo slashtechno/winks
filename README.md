@@ -9,9 +9,24 @@ Please note: I built this with AI simply as a proof of concept. It works, but it
 
 - Windows 10/11
 - iPhone paired via **Windows Settings › Bluetooth** (classic BT — do this first)
-- [uv](https://docs.astral.sh/uv/)
 
-## Install
+## Download
+
+[**Download winks.exe**](https://github.com/slashtechno/winks/releases/download/latest/winks.exe) (pre-built, no Python needed)
+
+Place it anywhere you like (e.g. `C:\Users\you\bin\winks.exe`), open a terminal in that folder, and run:
+
+```
+winks.exe setup
+```
+
+`setup` scans for your iPhone, saves its BLE address, and optionally adds a startup task and Start Menu entry so winks launches on login.
+
+The binary is updated automatically on every commit to main.
+
+## Install from source
+
+Requires [uv](https://docs.astral.sh/uv/):
 
 ```
 uv tool install git+https://github.com/slashtechno/winks
