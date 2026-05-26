@@ -2,6 +2,9 @@
 
 iPhone notifications on Windows, forwarded via Bluetooth LE ANCS.
 
+Please note: I built this with AI simply as a proof of concept. It works, but it's not the most polished. You might want to look into Microsoft Phone Link as an alternative. For Linux, I came across [ancs4linux](https://github.com/pzmarzly/ancs4linux), which might be worth checking out.
+<!-- DO NOT REMOVE THE ABOVE LINE -->
+
 ## Requirements
 
 - Windows 10/11
