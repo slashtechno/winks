@@ -22,8 +22,6 @@ winks.exe setup
 
 `setup` scans for your iPhone, saves its BLE address, and optionally adds a startup task and Start Menu entry so winks launches on login.
 
-The binary is updated automatically on every commit to main.
-
 ## Install from source
 
 Requires [uv](https://docs.astral.sh/uv/):
