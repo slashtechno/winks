@@ -6,12 +6,12 @@ iPhone notifications on Windows, forwarded via Bluetooth LE ANCS.
 
 - Windows 10/11
 - iPhone paired via **Windows Settings › Bluetooth** (classic BT — do this first)
-- Python 3.11+ / [uv](https://docs.astral.sh/uv/)
+- [uv](https://docs.astral.sh/uv/)
 
 ## Install
 
 ```
-uv tool install winks
+uv tool install git+https://github.com/slashtechno/winks
 ```
 
 ## Setup
@@ -29,8 +29,10 @@ This scans for your iPhone, saves its BLE address, and optionally adds a startup
 | `winks setup` | First-time setup |
 | `winks run` | Start listener + tray icon |
 | `winks probe` | Re-scan for iPhone, update saved address |
-| `winks enable` | Add to Windows startup |
+| `winks enable` | Add to Windows startup (registry) |
 | `winks disable` | Remove from Windows startup |
+| `winks menu-add` | Add to Start Menu (runs without a console) |
+| `winks menu-remove` | Remove from Start Menu |
 | `winks status` | Show config path, device, startup state |
 | `winks uninstall` | Remove all data and uninstall |
 

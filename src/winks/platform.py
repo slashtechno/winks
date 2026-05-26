@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 import sys
 import winreg
 from collections.abc import Callable
@@ -15,6 +16,12 @@ CONFIG_PATH = Path(user_config_dir("winks")) / "config.json"
 
 _RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 _RUN_VALUE = "Winks"
+
+_START_MENU = (
+    Path.home() / "AppData" / "Roaming" / "Microsoft" / "Windows" / "Start Menu" / "Programs"
+)
+_VBS_PATH = _START_MENU / "Winks.vbs"
+_LNK_PATH = _START_MENU / "Winks.lnk"
 
 # assets/icon.png sits at the repo root, three levels above this file
 _ICON_PATH = Path(__file__).parent.parent.parent / "assets" / "icon.png"
@@ -60,6 +67,34 @@ def startup_task_exists() -> bool:
         return True
     except FileNotFoundError:
         return False
+
+
+def add_start_menu_entry() -> None:
+    """Create a Start Menu shortcut that launches winks without a console window."""
+    exe = _exe()
+    _VBS_PATH.write_text(
+        f'CreateObject("WScript.Shell").Run "{exe} run", 0, False\n',
+        encoding="utf-8",
+    )
+    icon = str(_ICON_PATH) if _ICON_PATH.exists() else str(exe)
+    ps = (
+        f'$s=(New-Object -COM WScript.Shell).CreateShortcut("{_LNK_PATH}");'
+        f'$s.TargetPath="wscript.exe";'
+        f'$s.Arguments=\'"{_VBS_PATH}"\';'
+        f'$s.IconLocation="{icon}";'
+        f'$s.Description="Winks - iPhone notifications on Windows";'
+        f'$s.Save()'
+    )
+    subprocess.run(["powershell", "-NoProfile", "-Command", ps], check=True)
+
+
+def remove_start_menu_entry() -> None:
+    _LNK_PATH.unlink(missing_ok=True)
+    _VBS_PATH.unlink(missing_ok=True)
+
+
+def start_menu_entry_exists() -> bool:
+    return _LNK_PATH.exists()
 
 
 def _exe() -> Path:

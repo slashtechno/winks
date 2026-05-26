@@ -13,6 +13,7 @@ from winks.protocol import (
     APPLE_MFR_ID,
     CONTROL_POINT_UUID,
     DATA_SOURCE_UUID,
+    FLAG_PRE_EXISTING,
     NOTIF_SOURCE_UUID,
     DataSource,
     build_attr_request,
@@ -90,16 +91,20 @@ class Listener:
                 # iOS fires ServicesChanged after upgrading to an encrypted ANCS
                 # session. The WinRT GattSession closes while it's handled, which
                 # cancels any in-flight GATT operations. Wait for it to settle
-                # before touching GATT.
-                await asyncio.sleep(3.0)
+                # before touching GATT. Multiple upgrades can happen (4s, 7s+).
+                await asyncio.sleep(8.0)
                 if not client.is_connected:
                     return
                 if not client.services.get_service(ANCS_SERVICE_UUID):
                     raise ANCSNotFoundError(
                         f"ANCS not found on {self._address}. Re-pair your iPhone."
                     )
-                await client.start_notify(DATA_SOURCE_UUID, self._on_data)
-                await client.start_notify(NOTIF_SOURCE_UUID, self._on_notif_source)
+                try:
+                    await client.start_notify(DATA_SOURCE_UUID, self._on_data)
+                    await client.start_notify(NOTIF_SOURCE_UUID, self._on_notif_source)
+                except Exception as e:
+                    log.debug("Failed to start notifications: %s", e)
+                    return
                 log.info("Ready — listening for notifications.")
                 _reached_ready = True
                 if self._on_connect:
@@ -119,6 +124,8 @@ class Listener:
             self._pending.pop(notif.uid, None)
             return
         if notif.event_id != _EVENT_ADDED:
+            return
+        if notif.flags & FLAG_PRE_EXISTING:
             return
         self._pending[notif.uid] = notif.category
         asyncio.ensure_future(self._fetch_attrs(notif.uid))

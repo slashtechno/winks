@@ -30,6 +30,9 @@ ATTR_TITLE = 1
 ATTR_SUBTITLE = 2
 ATTR_MESSAGE = 3
 
+# EventFlags bits
+FLAG_PRE_EXISTING = 0x08  # notification existed before this ANCS session
+
 _CATEGORIES: dict[int, str] = {
     0: "Other",
     1: "Incoming Call",

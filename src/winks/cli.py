@@ -16,9 +16,12 @@ from winks.platform import (
     CONFIG_PATH,
     Config,
     Tray,
+    add_start_menu_entry,
     add_startup_task,
+    remove_start_menu_entry,
     remove_startup_task,
     show_toast,
+    start_menu_entry_exists,
     startup_task_exists,
 )
 from winks.protocol import DataSource
@@ -55,6 +58,10 @@ def setup() -> None:
     if click.confirm("Run winks automatically on login?", default=True):
         add_startup_task()
         click.echo("Startup task created.")
+
+    if click.confirm("Add winks to the Start Menu?", default=True):
+        add_start_menu_entry()
+        click.echo("Start Menu entry created.")
 
     if click.confirm("Start winks now?", default=True):
         _run(cfg)
@@ -100,21 +107,37 @@ def disable() -> None:
     click.echo("Startup task removed.")
 
 
+@cli.command(name="menu-add")
+def menu_add() -> None:
+    """Add winks to the Start Menu (runs without a console window)."""
+    add_start_menu_entry()
+    click.echo("Start Menu entry created. Search 'Winks' in Start to launch.")
+
+
+@cli.command(name="menu-remove")
+def menu_remove() -> None:
+    """Remove winks from the Start Menu."""
+    remove_start_menu_entry()
+    click.echo("Start Menu entry removed.")
+
+
 @cli.command()
 def status() -> None:
     """Show current configuration."""
     cfg = Config.load()
-    click.echo(f"Config:   {CONFIG_PATH}")
-    click.echo(f"Device:   {cfg.device_address or '(not set)'}")
-    click.echo(f"Probed:   {cfg.probed_at or '(never)'}")
-    click.echo(f"Startup:  {'yes' if startup_task_exists() else 'no'}")
+    click.echo(f"Config:     {CONFIG_PATH}")
+    click.echo(f"Device:     {cfg.device_address or '(not set)'}")
+    click.echo(f"Probed:     {cfg.probed_at or '(never)'}")
+    click.echo(f"Startup:    {'yes' if startup_task_exists() else 'no'}")
+    click.echo(f"Start Menu: {'yes' if start_menu_entry_exists() else 'no'}")
 
 
 @cli.command()
 def uninstall() -> None:
-    """Remove startup task, config, and uninstall winks."""
+    """Remove startup task, Start Menu entry, config, and uninstall winks."""
     click.confirm("This will remove all winks data. Continue?", abort=True)
     remove_startup_task()
+    remove_start_menu_entry()
     if CONFIG_PATH.exists():
         CONFIG_PATH.unlink()
         click.echo(f"Deleted {CONFIG_PATH}")
@@ -129,6 +152,12 @@ def _make_on_notification(tray: Tray) -> Callable[[DataSource, str], None]:
 
 
 def _run(cfg: Config) -> None:
+    import ctypes
+    _mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Global\\WinksApp")
+    if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+        click.echo("winks is already running.")
+        raise SystemExit(0)
+
     tray = Tray()
     listener = Listener(
         address=cfg.device_address,  # type: ignore[arg-type]
