@@ -31,7 +31,7 @@ ATTR_SUBTITLE = 2
 ATTR_MESSAGE = 3
 
 # EventFlags bits
-FLAG_PRE_EXISTING = 0x08  # notification existed before this ANCS session
+FLAG_PRE_EXISTING = 0x04  # notification existed before this ANCS session
 
 _CATEGORIES: dict[int, str] = {
     0: "Other",
